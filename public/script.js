@@ -18,11 +18,11 @@ profileForm.addEventListener('submit', async function (e) {
     const goal = document.getElementById('goal').value;
 
     // Construct the initial context for the AI
-    const initialMessage = `I am ${height}cm tall and weigh ${weight}kg. My lifestyle is ${lifestyle}. My goal is to ${goal}. Please act as my personal diet assistant and help me achieve my goals.`;
+    const initialMessage = `Here is my profile: Height: ${height}cm, Weight: ${weight}kg, Lifestyle: ${lifestyle}, Goal: ${goal}. Please help me achieve this goal. Be my support system, encourage me, and guide me with meal plans and workout advice. I need you to be empathetic and motivating.`;
 
     // Switch UI to chat mode
     profileSection.style.display = 'none';
-    chatSection.style.display = 'block';
+    chatSection.style.display = 'flex';
 
     // Add context to history (hidden from user view, but sent to API)
     conversation.push({ role: 'user', text: initialMessage });
@@ -41,12 +41,18 @@ profileForm.addEventListener('submit', async function (e) {
 
         const data = await response.json();
         const aiReply = data.result;
-
-        botMessageElement.textContent = `Bot: ${aiReply}`;
-        conversation.push({ role: 'model', text: aiReply });
+        
+        if (aiReply) {
+            botMessageElement.innerHTML = marked.parse(aiReply);
+            conversation.push({ role: 'model', text: aiReply });
+        } else {
+            // Handles case #2: AI returns no text (e.g., due to safety filters)
+            botMessageElement.textContent = 'Bot: I could not generate a plan. This might be due to safety filters. Please try rephrasing your goals.';
+        }
     } catch (error) {
         console.error('Error:', error);
-        botMessageElement.textContent = 'Bot: Failed to generate plan. Please try asking in the chat.';
+        // Handles case #1: Backend or network failure
+        botMessageElement.textContent = 'Bot: Failed to connect to the AI service. Please check the backend server and API key.';
     }
 });
 
@@ -80,22 +86,30 @@ form.addEventListener('submit', async function (e) {
         const aiReply = data.result;
 
         // Update the "Thinking..." message with the actual response
-        botMessageElement.textContent = `Bot: ${aiReply}`;
-
-        // Add AI response to history
-        conversation.push({ role: 'model', text: aiReply });
+        if (aiReply) {
+            botMessageElement.innerHTML = marked.parse(aiReply);
+            conversation.push({ role: 'model', text: aiReply });
+        } else {
+            botMessageElement.textContent = 'Bot: I received an empty response. Please try again.';
+        }
 
     } catch (error) {
         console.error('Error:', error);
-        botMessageElement.textContent = 'Bot: Sorry, something went wrong.';
+        botMessageElement.textContent = 'Bot: Sorry, I could not get a response from the server.';
     }
 });
 
 function appendMessage(sender, text) {
     const div = document.createElement('div');
-    // Capitalize sender for display (e.g., "user" -> "User")
-    const senderDisplay = sender.charAt(0).toUpperCase() + sender.slice(1);
-    div.textContent = `${senderDisplay}: ${text}`;
+    div.classList.add('message', sender.toLowerCase());
+    
+    // Jika pengirim adalah bot dan marked tersedia, render sebagai HTML
+    if (sender === 'bot' && typeof marked !== 'undefined') {
+        div.innerHTML = marked.parse(text);
+    } else {
+        div.textContent = text;
+    }
+    
     chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
     return div;
