@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Diet Tracker</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Diet Tracker</h1>
+    
+    <div id="profile-section">
+      <form id="profile-form">
+        <input type="number" id="weight" placeholder="Weight (kg)" required />
+        <input type="number" id="height" placeholder="Height (cm)" required />
+        <input type="text" id="lifestyle" placeholder="Lifestyle (e.g., Sedentary, Active)" required />
+        <input type="text" id="goal" placeholder="Goal (e.g., Lose weight, Gain muscle)" required />
+        <button type="submit">Start Tracking</button>
+      </form>
+    </div>
+
+    <div id="chat-section" style="display: none;">
+      <div id="chat-box" class="chat-box"></div>
+      <form id="chat-form">
+        <input type="text" id="user-input" placeholder="Ask about your diet..." autocomplete="off" required />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
